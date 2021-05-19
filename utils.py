@@ -83,8 +83,12 @@ def get_folder_name():
 
 
 
-def apply_preprocess(test_df, encoders):
+def apply_preprocess(test_path, encoders):
+    """
+    Apply encoders to test data
+    """
 
+    test_df = pd.read_csv(test_path, dtype=str)
     if not all(x in test_df.columns for x in HEADERS):
         raise AssertionError("Data is not in the right format!")
     
@@ -95,7 +99,8 @@ def apply_preprocess(test_df, encoders):
 
     for i in range(1,len(HEADERS)):
         enc = encoders[i]
-        data.append(enc.transform(test_df[HEADERS[i]]))
+        label = np.expand_dims(test_df[HEADERS[i]].to_numpy(), axis=1)
+        data.append(enc.transform(label))
         
     return data
 
