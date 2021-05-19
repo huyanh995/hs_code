@@ -37,7 +37,7 @@ def preprocess(train_path, records=True):
     description_data = pad_sequences(list_tokens, MAX_SEQUENCE_LENGTH)
     data = [description_data]
     encoders = []
-    print(type(data))
+
     for i in range(1, len(HEADERS)):
         label = np.expand_dims(df[HEADERS[i]].to_numpy(), axis=1)
         enc = OneHotEncoder()
@@ -56,7 +56,7 @@ def preprocess(train_path, records=True):
 
         print("All encoders are saved into {}".format(new_folder_dir))
 
-    return data, encoders
+    return data
 
 def load_preprocess(encoder_dir = 'data/encoders/default'):
 
@@ -106,4 +106,5 @@ def apply_preprocess(test_path, encoders):
 
 
 if __name__ == '__main__':
-    preprocess('train.csv')
+    data = preprocess('train.csv')
+    print("STOP")
