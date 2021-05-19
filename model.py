@@ -26,7 +26,7 @@ class CustomAttention(keras.layers.Layer):
         
     def call(self, inputs, n_classes):
         x = self.dense(inputs)
-        x = self.permute(a)
+        x = self.permute(x)
         alpha = self.activation(x)
         return self.attention([alpha, inputs])
 
@@ -43,7 +43,7 @@ class HierarchicalModel(keras.Model):
                 max_sequence_length=200, 
                 n_classes=100,
                 name = 'hierarchical_clf'):
-                
+
         super(HierarchicalModel, self).__init__(name=name, **kwargs)
 
         #self.input = Input(shape=(max_sequence_length,))
