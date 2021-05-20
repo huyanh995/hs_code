@@ -1,23 +1,26 @@
 import argparse
-
-
-from utils import preprocess
+import os 
+import json
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+from utils import preprocess, get_folder_name
 from model import HierarchicalModel
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
+from tensorflow.keras.optimizers import Adam, RMSprop
 
 parser = argparse.ArgumentParser(description="Arguments to train model")
 
 parser.add_argument("-d", "--data", type=str, default='train.csv', help="Path to train data")
-#parser.add_argument("-e", "--encoders", type=str, default='data/encoders/default/', help="Path to encoders"
-parser.add_argument("-ep", "--epochs", type=int, default=100, help="Number of training epochs")
-parser.add_argument("-lr", "--learning_rate", type=float, default=1e-5, help="Model learning rate")
+parser.add_argument("-ep", "--epochs", type=int, default=50, help="Number of training epochs")
+parser.add_argument("-b", "--batch", type=int, default=1024, help="Number of examples per batch")
+parser.add_argument("-lr", "--learning_rate", type=float, default=5e-4, help="Model learning rate")
 parser.add_argument("--save_encoders", type=bool, default=True, help="Choose to save the encoders or not")
 args = parser.parse_args()
 
-data_dir = args.data
-n_epochs = args.epochs
-lr = args.learning_rate
 
-data = preprocess(data_dir)
+print("Preprocessing data ...")
+data = preprocess(args.data)
+
+print("-"*20, "\n")
 
 code_declaration = data[0]
 chapter_label = data[1]
@@ -34,18 +37,31 @@ n_country_extension_classes = country_extension_label.shape[1]
 
 model = HierarchicalModel(n_chapter_classes, n_heading_classes, n_sub_heading_classes, n_country_extension_classes)
 
-checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
-optimizer = Adam(lr = 5e-4)
-model.compile(loss='categorical_crossentropy',optimizer = optimizer,metrics=['accuracy'])
+weight_folder_dir = get_folder_name('model_weights/model_{}')
+os.mkdir(weight_folder_dir)
+weight_path = weight_folder_dir + "/model_weight.ckpt"
+model_parameters = model.get_parameters()
+with open(os.path.join(weight_folder_dir, 'model_parameters.json'), 'w') as outfile:
+    json.dump(model_parameters, outfile)
+    
+checkpoint = ModelCheckpoint(weight_path, save_weights_only=True, monitor='loss', verbose=2, save_best_only=True, mode='min')
 
-early_stop = EarlyStopping(monitor='val_acc',patience=8,verbose=1,restore_best_weights=True)
-reduce_lr = ReduceLROnPlateau(monitor='val_loss',factor=0.1,patience=3,verbose=1,min_lr=1e-5)
+optimizer = Adam(args.learning_rate)
+model.compile(loss='categorical_crossentropy',optimizer = optimizer, metrics=['accuracy'])
+early_stop = EarlyStopping(monitor='val_acc',patience=8,verbose=2,restore_best_weights=True)
+reduce_lr = ReduceLROnPlateau(monitor='val_loss',factor=0.1,patience=3,verbose=2,min_lr=1e-5)
 
-model.fit(X_train,
-    {"hs_chaper": chapter_train, "hs_heading": heading_train, "hs_sub_heading":sub_heading_train,"hs_country_extension":country_extension_train },
-    epochs=20,
-    batch_size=1024,validation_split=0.1, callbacks=[reduce_lr, early_stop, checkpoint]
-)
+print("Traning model with batch size {} and {} epochs".format(args.batch, args.epochs))
 
-if __name__ == '__main__':
-    print(data_dir, n_epochs, lr, args.save_encoders)
+# model.fit(code_declaration,
+#     [chapter_label, heading_label, sub_heading_label, country_extension_label],
+#     epochs=args.epochs,
+#     batch_size=args.batch,validation_split=0.1, callbacks=[reduce_lr, early_stop, checkpoint], verbose=1)
+
+model.fit(code_declaration,
+    [chapter_label, heading_label, sub_heading_label, country_extension_label],
+    epochs=1,
+    batch_size=512,validation_split=0.1, callbacks=[reduce_lr, early_stop, checkpoint], verbose=1)
+
+print("-"*20, "\n")
+print("Model weights and parameters are saved into {}".format(weight_folder_dir))

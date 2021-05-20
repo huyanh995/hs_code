@@ -4,6 +4,8 @@ Created: 18 May
 Last modified: 18 May by Huy Anh Nguyen (anh.h.nguyen@stonybrook.edu)
 """
 
+import tensorflow as tf
+import tensorflow.keras as keras
 from tensorflow.keras.preprocessing.text import one_hot,text_to_word_sequence, Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers import Dense, Flatten, Embedding, Input,Bidirectional,LSTM,Dropout,Permute,Activation,Lambda,Reshape
@@ -24,7 +26,7 @@ class CustomAttention(keras.layers.Layer):
         self.activation = Activation('softmax')
         self.attention = Lambda(lambda x: K.batch_dot(x[0], x[1]))
         
-    def call(self, inputs, n_classes):
+    def call(self, inputs):
         x = self.dense(inputs)
         x = self.permute(x)
         alpha = self.activation(x)
@@ -44,7 +46,9 @@ class HierarchicalModel(keras.Model):
                 n_classes=100,
                 name = 'hierarchical_clf'):
 
-        super(HierarchicalModel, self).__init__(name=name, **kwargs)
+        super(HierarchicalModel, self).__init__(name=name)
+
+        self.parameters = locals()
 
         #self.input = Input(shape=(max_sequence_length,))
         self.embedding = Embedding(num_words, embed_size)
@@ -59,7 +63,7 @@ class HierarchicalModel(keras.Model):
         self.fc_4 = Dense(n_classes, activation='relu')
 
         self.chapter_output = Dense(n_chapter_classes, activation='sigmoid')
-        self.heading_output = Dense(n_heading_classes, activation='relu')
+        self.heading_output = Dense(n_heading_classes, activation='sigmoid')
         self.sub_heading_output = Dense(n_sub_heading_classes, activation='sigmoid')
         self.country_extension_output = Dense(n_country_extension_classes, activation='sigmoid')
 
@@ -77,8 +81,16 @@ class HierarchicalModel(keras.Model):
         sub_heading = self.sub_heading_output(fc3)
         country_extension = self.country_extension_output(fc4)
 
-        return [chapter, heading, sub_heading, country_extension]
+        return chapter, heading, sub_heading, country_extension
 
+    def get_parameters(self):
+        unwanted_keys = ['self', 'name', '__class__']
+        for key in unwanted_keys:
+            del self.parameters[key]
+        
+        return self.parameters
         
 
-        
+if __name__ == '__main__':
+    model = HierarchicalModel(10, 10, 10, 10)
+    print(model.get_parameters())

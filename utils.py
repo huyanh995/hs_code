@@ -11,7 +11,7 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 
-enc_dir = 'data/encoders/'
+data_dir = 'data/'
 
 FILES = ['tokenizer.pkl', 'enc_chapter.pkl', 
             'enc_heading.pkl', 'enc_sub_heading.pkl', 'enc_country_extension.pkl']
@@ -40,13 +40,13 @@ def preprocess(train_path, records=True):
 
     for i in range(1, len(HEADERS)):
         label = np.expand_dims(df[HEADERS[i]].to_numpy(), axis=1)
-        enc = OneHotEncoder()
+        enc = OneHotEncoder(sparse=False)
         enc_data = enc.fit_transform(label)
         data.append(enc_data)
         encoders.append(enc)
 
     if records:
-        new_folder_dir = get_folder_name()
+        new_folder_dir = get_folder_name('encoders/encoders_{}')
         os.mkdir(new_folder_dir)
         for name, enc in zip(FILES, encoders):   
             file_path = os.path.join(new_folder_dir, name)
@@ -69,11 +69,10 @@ def load_preprocess(encoder_dir = 'data/encoders/default'):
 
     return encoders
 
-def get_folder_name():
-    new_dir = 'encoders_{}'
+def get_folder_name(template):
     count = 0
     while True:
-        temp_folder = enc_dir + new_dir.format(count)
+        temp_folder = data_dir + template.format(count)
         if not os.path.isdir(temp_folder):
             break
         count += 1
