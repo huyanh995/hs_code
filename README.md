@@ -16,7 +16,7 @@ conda activate hs
 pip install tensorflow
 pip install -U scikit-learn
 ```
-## Traning
+## Training
 ```
 python train.py --data train.csv --epochs 20
 ```
