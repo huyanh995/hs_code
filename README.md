@@ -9,13 +9,16 @@ Proceedings of the International Conference on Intelligent Systems and Networks 
 ```
 Link to paper: https://link.springer.com/chapter/10.1007/978-981-16-2094-2_37
 
-## Installation (Conda)
+## Installation
 ```
-conda create -n hscode python=3.8.5 -y
+conda create -n hs python=3.8.5 scipy numpy pandas
+conda activate hs
+pip install tensorflow
+pip install -U scikit-learn
 ```
 ## Traning
 ```
-python train.py --data train.csv --epochs 200
+python train.py --data train.csv --epochs 20
 ```
 
 ## Testing (Demo)

@@ -18,10 +18,8 @@ FILES = ['tokenizer.pkl', 'enc_chapter.pkl',
 
 HEADERS = ['TEN_HANG', 'CHAPTER', 'HEADING', 'SUB_HEADING', 'COUNTRY_EXTENSION']
 
-NUM_WORDS = 5000
-MAX_SEQUENCE_LENGTH = 200
 
-def preprocess(train_path, records=True):
+def preprocess(train_path, num_words=200, max_sequence_length=200, records=True):
     """
     Apply preprocessing to train data, including:
     tokenizing and one-hot encoders for four labels
@@ -31,12 +29,12 @@ def preprocess(train_path, records=True):
     if not all(x in df.columns for x in HEADERS):
         raise AssertionError("Data is not in the right format!")
 
-    tokenizer = Tokenizer(num_words=NUM_WORDS)
+    tokenizer = Tokenizer(num_words=num_words)
     tokenizer.fit_on_texts(df[HEADERS[0]])
     list_tokens = tokenizer.texts_to_sequences(df[HEADERS[0]])
-    description_data = pad_sequences(list_tokens, MAX_SEQUENCE_LENGTH)
+    description_data = pad_sequences(list_tokens, max_sequence_length)
     data = [description_data]
-    encoders = []
+    encoders = [tokenizer]
 
     for i in range(1, len(HEADERS)):
         label = np.expand_dims(df[HEADERS[i]].to_numpy(), axis=1)
@@ -84,7 +82,7 @@ def get_folder_name(template):
         
 
 
-def apply_preprocess(test_path, encoders):
+def apply_preprocess(test_path, encoders, max_sequence_length=200):
     """
     Apply encoders to test data
     """
@@ -95,7 +93,7 @@ def apply_preprocess(test_path, encoders):
     
     tokenizer = encoders[0]
     list_tokens = tokenizer.texts_to_sequences(test_df[HEADERS[0]])
-    description_data = pad_sequences(list_tokens, MAX_SEQUENCE_LENGTH)
+    description_data = pad_sequences(list_tokens, max_sequence_length)
     data = [description_data]
 
     for i in range(1,len(HEADERS)):
