@@ -1,4 +1,5 @@
 .vscode/
+.ipynb_checkpoints/ 
 test.csv
 settings.json
 *.pyc
