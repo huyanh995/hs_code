@@ -1,5 +1,6 @@
 .vscode/
 .ipynb_checkpoints/ 
+train.csv
 test.csv
 settings.json
 *.pyc
