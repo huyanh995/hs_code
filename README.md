@@ -28,7 +28,7 @@ python test.py --data sample.csv
 ## Data
 Provide upon request. Contact [thang.tranngoc@hust.edu.vn](mailto:thang.tranngoc@hust.edu.vn)
 
-Note: training data **must** have these 5 headers: TEN_HANG, CHAPTER, HEADING, SUB_HEADING, COUNTRY_EXTENSION
+Note: training data **must** has these 5 headers: TEN_HANG, CHAPTER, HEADING, SUB_HEADING, COUNTRY_EXTENSION
 
 ## Citation
 If you find the code useful, please cite:
