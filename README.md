@@ -1,4 +1,4 @@
-# Hierarchical Model for HS Code (Vietnamese)
+# HS Code Classification (Vietnamese)
 
 The implementation of the paper
 
