@@ -22,6 +22,7 @@ parser.add_argument("-ep", "--epochs", type=int, default=50, help="Number of tra
 parser.add_argument("-b", "--batch", type=int, default=1024, help="Number of examples per batch")
 parser.add_argument("-lr", "--learning_rate", type=float, default=5e-4, help="Model learning rate")
 parser.add_argument("--save_encoders", type=bool, default=True, help="Choose to save the encoders or not")
+parser.add_argument("-v", "--verbose", type=int, default=1)
 args = parser.parse_args()
 
 
@@ -61,15 +62,10 @@ reduce_lr = ReduceLROnPlateau(monitor='val_loss',factor=0.1,patience=3,verbose=2
 
 print("Traning model with batch size {} and {} epochs".format(args.batch, args.epochs))
 
-# model.fit(code_declaration,
-#     [chapter_label, heading_label, sub_heading_label, country_extension_label],
-#     epochs=args.epochs,
-#     batch_size=args.batch,validation_split=0.1, callbacks=[reduce_lr, early_stop, checkpoint], verbose=1)
-
 model.fit(code_declaration,
     [chapter_label, heading_label, sub_heading_label, country_extension_label],
-    epochs=10,
-    batch_size=512,validation_split=0.1, callbacks=[reduce_lr, early_stop, checkpoint], verbose=1)
+    epochs=args.epochs,
+    batch_size=args.batch,validation_split=0.1, callbacks=[reduce_lr, early_stop, checkpoint], verbose=args.verbose)
 
 print("-"*20, "\n")
 print("Model weights and parameters are saved into {}".format(weight_folder_dir))
