@@ -1,7 +1,10 @@
 """
+Hierarchical Classification Model
+Draft by Pham Ngoc Linh, Tran Ngoc Thang, Huy Anh Nguyen, Nguyen Thanh Binh
+Written by Huy Anh Nguyen (anh.h.nguyen@stonybrook.edu)
 
-Created: 18 May
-Last modified: 18 May by Huy Anh Nguyen (anh.h.nguyen@stonybrook.edu)
+Last modified by Huy Anh Nguyen
+Date: May 20, 2021
 """
 
 import tensorflow as tf

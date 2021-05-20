@@ -59,7 +59,7 @@ def preprocess(train_path, records=True):
     return data
 
 def load_preprocess(encoder_dir = 'data/encoders/default'):
-
+    
     encoders = []
 
     for name in FILES:
@@ -70,6 +70,9 @@ def load_preprocess(encoder_dir = 'data/encoders/default'):
     return encoders
 
 def get_folder_name(template):
+    """
+    Get available folder name for saving model and encoders
+    """
     count = 0
     while True:
         temp_folder = data_dir + template.format(count)
@@ -79,7 +82,6 @@ def get_folder_name(template):
 
     return temp_folder
         
-
 
 
 def apply_preprocess(test_path, encoders):
@@ -103,6 +105,23 @@ def apply_preprocess(test_path, encoders):
         
     return data
 
+
+def transform_result(results, encoders):
+    """
+    Get predict values from model and transform into label (part of HS Code)
+    by using saved OneHotEncoders
+    """
+    output = []
+    for res, enc in zip(results, encoders):
+        onehot = np.zeros_like(res)
+        label_position = np.argmax(res, axis=-1)
+        onehot[np.arange(onehot.shape[0]), label_position] = 1
+        output.append(enc.inverse_transform(onehot))
+    
+    temp = np.concatenate(output, axis=-1).astype('str')
+    df = pd.DataFrame(temp, dtype='str')
+
+    return (df[0] + df[1] + df[2] + df[3]).to_numpy()
 
 if __name__ == '__main__':
     data = preprocess('train.csv')

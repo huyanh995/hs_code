@@ -1,3 +1,11 @@
+"""
+Code to train model on provided train data.
+Written by Huy Anh Nguyen (anh.h.nguyen@stonybrook.edu)
+
+Last modified by Huy Anh Nguyen
+Date: May 20, 2021
+"""
+
 import argparse
 import os 
 import json
@@ -48,7 +56,7 @@ checkpoint = ModelCheckpoint(weight_path, save_weights_only=True, monitor='loss'
 
 optimizer = Adam(args.learning_rate)
 model.compile(loss='categorical_crossentropy',optimizer = optimizer, metrics=['accuracy'])
-early_stop = EarlyStopping(monitor='val_acc',patience=8,verbose=2,restore_best_weights=True)
+early_stop = EarlyStopping(monitor='val_loss', mode='min', patience=8, verbose=2, restore_best_weights=True)
 reduce_lr = ReduceLROnPlateau(monitor='val_loss',factor=0.1,patience=3,verbose=2,min_lr=1e-5)
 
 print("Traning model with batch size {} and {} epochs".format(args.batch, args.epochs))
@@ -60,7 +68,7 @@ print("Traning model with batch size {} and {} epochs".format(args.batch, args.e
 
 model.fit(code_declaration,
     [chapter_label, heading_label, sub_heading_label, country_extension_label],
-    epochs=1,
+    epochs=10,
     batch_size=512,validation_split=0.1, callbacks=[reduce_lr, early_stop, checkpoint], verbose=1)
 
 print("-"*20, "\n")

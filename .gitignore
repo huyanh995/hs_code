@@ -1,3 +1,4 @@
-train.csv
+.vscode/
 test.csv
+settings.json
 *.pyc
